@@ -4,24 +4,28 @@ parseTime = d3.timeParse("%B %d %Y");
 formatTime = d3.timeFormat("%m/%d");
 
 var dat = []
-var teaminfo, x, y, height, width, hoverHide, hover
+var teaminfo, x, y, height, width
 
-height = 120
-
+var height = 150
 
 
 function hover(actualTime) {
     d3.selectAll('.hover').style('opacity', 1)
 
+
     games.forEach(function(d) {
-        // console.log(d)
+        // console.log(actualTime)
         var time = Math.max(0, actualTime)
+        // console.log(time)
         var sec = padTime(time % 1 * 60)
         d.xText.text(padTime(time) + ':' + sec)
             .attr('x', x(time))
-        // console.log(d)
-        var i = clamp(0, d3.bisectLeft(d.negMin, -time), d.length - 1)
+        console.log(-time)
+
+        var i = clamp(0, d3.bisectLeft(d.negMin, -time) - 1, d.length - 1)
+        // console.log(i)
         var diff = d[i].shotdff
+
         // console.log(diff)
         d.yText.text(diff).attr('y', y(diff))
         // console.log(height)
@@ -41,8 +45,10 @@ function padTime(d) {
     return d3.format('02d')(Math.floor(Math.abs(d)))
 }
 
+
 d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
-    // console.log(res)
+    console.log(res[1])
+
     teaminfo = res[1]
     allData = res[0]
     res[0].forEach(function(d) {
@@ -52,8 +58,9 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
     })
 
     games = []
+    console.log(res[1])
     dat.forEach(function(d) {
-        // console.log(d)
+
         var filteredData = _(res[1]).filter(function(i) {
             i.shotdff = +i.shotdff
             i.seconds = +i.seconds
@@ -62,20 +69,47 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             return d.gcode === i.gcode;
 
         });
+        // make selected team always positive if they shoot first
+        if (filteredData[0]['ev.team'] == t && Math.sign(filteredData[0].shotdff) == -1 || filteredData[0]['ev.team'] != t && Math.sign(filteredData[0].shotdff) == 1) {
+            filteredData.forEach(function(d) {
+                if (Math.sign(d.shotdff) == -1)
+                    d.shotdff = Math.sign(d.shotdff) * d.shotdff
+                else
+                    d.shotdff = -Math.sign(d.shotdff) * d.shotdff
+            })
+        }
+        filteredData.splice(0, 0, {
+            shotdff: 0,
+            seconds: 0,
+            min: 60.00,
+            etype: "SHOT",
+            'ev.team': t
+
+        })
         games.push(filteredData)
     })
+    // var changepos, changeneg
 
+    // if(games[0].ev.team == t && games[0].shotdff ==-1){
+    //     changepos = true;
+    // }else if(games[0].ev.team != t && games[0].shotdff ==1 ) {
+    //     changeneg = true;
+    // }
     games.forEach(function(d, i) {
+        // console.log(d)
         d.date = dat[i].date.replace(/,/g, " ")
         d.finalscore = dat[i].scorehome + "-" + dat[i].scoreaway
         d.home = dat[i].home
         d.away = dat[i].away
+
         d.diffExtent = d3.extent(d, function(d) {
             return d.shotdff;
         })
         d.negMin = d.map(function(d) {
+            // console.log(d)
             return -d.min
         })
+
     })
     console.log(games)
 
@@ -106,14 +140,9 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
     console.log(gameSel)
 
     gameSel.each(function(d, i) {
-        var margin = {
-                top: 10,
-                right: 25,
-                bottom: 10,
-                left: 25
-            },
-            width = 195 - margin.left - margin.right,
-            height = 150 - margin.top - margin.bottom;
+        var
+            width = 195 //- margin.left - margin.right,
+        height = 150 //- margin.top - margin.bottom;
         console.log(height)
         // c = d3.conventions({
         //     parentSel: d3.select(this),
@@ -127,17 +156,12 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         //     }
         // })
         svg = d3.select(this).append('svg')
-            .attr('width', 195 + margin.left + margin.right)
-            .attr('height', 120 + margin.top + margin.bottom)
+            .attr('width', 195) //+ margin.left + margin.right)
+            .attr('height', 150) //+ margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var xAxis = d3.axisBottom()
-            .scale(x)
-        // .orient("bottom");
 
-        var yAxis = d3.axisLeft()
-            .scale(y)
         // .orient("left");
 
         x = d3.scaleLinear()
@@ -145,21 +169,27 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
 
         y = d3.scaleLinear()
             .range([height, 0]);
+        var xAxis = d3.axisBottom()
+            .scale(x)
+        // .orient("bottom");
 
+        var yAxis = d3.axisLeft()
+            .scale(y)
 
         x.domain([60, 0])
         y.domain(diffExtent)
         y.domain([-20, 20])
 
-        yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
-        xAxis.tickValues([60, 40, 20])
+
+        // yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
+        // xAxis.tickValues([60, 40, 20])
 
         svg.append("g")
             .call(d3.axisLeft()
                 .scale(y)
                 .tickValues([-15, -10, -5, 0, 5, 10, 15])
             )
-            .attr('class', 'axis');
+            .attr('class', 'y axis');
 
         svg.append("g")
             .call(d3.axisBottom()
@@ -170,7 +200,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             .attr('class', 'x line axis');
 
         svg.selectAll('.x line')
-            .attr('y1', -120)
+            .attr('y1', -height)
 
 
         svg.append('path.zero').attr('d', ['M', [0, y(0)], 'h', width].join(''))
@@ -181,16 +211,16 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             .attr('width', width)
             .attr('height', height)
 
-
         var line = d3.line()
             .x(function(d) {
                 // console.log(d)
                 return x(d['min'])
             })
             .y(function(d) {
+                // console.log(d)
                 return y(d['shotdff'])
             })
-            .curve(d3.curveStep)
+            .curve(d3.curveStepAfter)
         // .attr("class", "line")
 
         var area = d3.area()
@@ -201,7 +231,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
                 return y(d['shotdff'])
             })
             .y1(y(0))
-            .curve(d3.curveStep)
+            .curve(d3.curveStepAfter)
 
         svg.append('path.score-line')
             .attr('d', line(d))
@@ -224,12 +254,6 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
                 return y(d['shotdff'])
             })
             .attr('fill', 'none')
-            .attr("data-legend", function(d) {
-                return d.name
-            })
-            .attr("data-legend-icon", function(d) {
-                return "circle"
-            })
             .attr('stroke', function(d) {
                 // console.log(d['ev.team'])
                 if (d['ev.team'] == t) {
@@ -259,7 +283,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
 
         svg
             .on('mousemove', function() {
-                console.log(height)
+                // console.log(d3.mouse(this)[0])
                 hover(x.invert(d3.mouse(this)[0]))
             })
             .on('mouseout', hoverHide)
@@ -271,7 +295,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         .range(['for', 'against'])
 
     //d3-legend
-      var legend = d3.legendColor()
+    var legend = d3.legendColor()
         .shape('circle')
         .shapeRadius(4)
         .useClass(true)
@@ -285,9 +309,11 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
     d3.select(self.frameElement).style('height', d3.select('svg').attr('height') + "px");
     //create legend
 
+
 })
 
 function clamp(a, b, c) {
+    console.log(Math.max(a, Math.min(b, c)))
     return Math.max(a, Math.min(b, c))
 }
 
@@ -328,6 +354,16 @@ function updateGraph(t) {
             return d.gcode === i.gcode;
 
         });
+        console.log(filteredData[0])
+        if (filteredData[0]['ev.team'] == t && Math.sign(filteredData[0].shotdff) == -1 || filteredData[0]['ev.team'] != t && Math.sign(filteredData[0].shotdff) == 1) {
+            filteredData.forEach(function(d) {
+                if (Math.sign(d.shotdff) == -1)
+                    d.shotdff = Math.sign(d.shotdff) * d.shotdff
+                else
+                    d.shotdff = -Math.sign(d.shotdff) * d.shotdff
+            })
+        }
+
         games.push(filteredData)
     })
 
@@ -342,6 +378,7 @@ function updateGraph(t) {
         d.negMin = d.map(function(d) {
             return -d.min
         })
+
     })
     // console.log(games)
 
@@ -381,14 +418,9 @@ function updateGraph(t) {
     console.log(gameSel)
 
     gameSel.each(function(d, i) {
-        var margin = {
-                top: 10,
-                right: 25,
-                bottom: 10,
-                left: 25
-            },
-            width = 195 - margin.left - margin.right,
-            height = 150 - margin.top - margin.bottom;
+        var
+            width = 195,
+            height = 150;
         console.log(height)
         // c = d3.conventions({
         //     parentSel: d3.select(this),
@@ -402,18 +434,18 @@ function updateGraph(t) {
         //     }
         // })
         svg = d3.select(this).append('svg')
-            .attr('width', 195 + margin.left + margin.right)
-            .attr('height', 120 + margin.top + margin.bottom)
+            .attr('width', 195 )
+            .attr('height', 150 )
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            // .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         var xAxis = d3.axisBottom()
             .scale(x)
-            // .orient("bottom");
+        // .orient("bottom");
 
         var yAxis = d3.axisLeft()
             .scale(y)
-            // .orient("left");
+        // .orient("left");
 
         x = d3.scaleLinear()
             .range([0, width]);
@@ -425,15 +457,13 @@ function updateGraph(t) {
         y.domain(diffExtent)
         y.domain([-20, 20])
 
-        yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
-        xAxis.tickValues([60, 40, 20])
 
         svg.append("g")
             .call(d3.axisLeft()
                 .scale(y)
                 .tickValues([-15, -10, -5, 0, 5, 10, 15])
             )
-            .attr('class', 'axis');
+            .attr('class', 'y axis');
 
         svg.append("g")
             .call(d3.axisBottom()
@@ -444,7 +474,7 @@ function updateGraph(t) {
             .attr('class', 'x line axis');
 
         svg.selectAll('.x line')
-            .attr('y1', -120)
+            .attr('y1', -height)
 
 
 
@@ -465,7 +495,7 @@ function updateGraph(t) {
             .y(function(d) {
                 return y(d['shotdff'])
             })
-            .curve(d3.curveStep)
+            .curve(d3.curveStepAfter)
         // .attr("class", "line")
 
         var area = d3.area()
@@ -476,7 +506,7 @@ function updateGraph(t) {
                 return y(d['shotdff'])
             })
             .y1(y(0))
-            .curve(d3.curveStep)
+            .curve(d3.curveStepAfter)
 
         svg.append('path.score-line')
             .attr('d', line(d))
@@ -533,15 +563,7 @@ function updateGraph(t) {
 
 
     })
-    // console.log(gameSel1)
-    //     // .data(games)
-    // .enter()
-    // .append('div.game')
 
-    // gameSel.exit().remove()
-
-    // gameSel.enter()
-    //     .append('div.game')
 
     var legendScale = d3.scaleOrdinal()
         .domain(['Goal for', 'Goal against'])
@@ -558,108 +580,6 @@ function updateGraph(t) {
         .attr('transform', 'translate(800,-60)')
         .call(legend);
 
-    console.log(gameSel)
-
-    line = d3.line()
-        .x(function(d) {
-            // console.log(d)
-            return x(d['min'])
-        })
-        .y(function(d) {
-            return y(d['shotdff'])
-        })
-        .curve(d3.curveStep)
-
-
-
-
-    // gameSel1._groups[0].forEach(function(d, i) {
-    //     console.log(svg)
-    // gameSel.selectAll('path.score-line')
-    //     .data(games)
-    //     .enter()
-    //     .append('path.score-line')
-    //     .attr('d',function(d){
-    //     return line(d)
-    // })
-
-    // })
-
-    //           var area = d3.area()
-    //           .x(function(d) {
-    //               return c.x(d['min'])
-    //           })
-    //           .y0(function(d) {
-    //               return c.y(d['shotdff'])
-    //           })
-    //           .y1(c.y(0))
-    //           .curve(d3.curveStep)
-
-    //       // c.svg.append('path.score-line')
-    //       //     .attr('d', line(d))
-
-    //       c.svg.select('path.area')
-    //       .transition()
-    // .duration(1000)
-    //           .attr('d', area(d))
-    // .attr('clip-path', 'url(#clip' + d.gcode + ')')
-
-    // gameSel = d3.select('#graph').appendMany(games, 'div.game')
-
-    // console.log(gameSel1)
-
-
-
-
-    // .attr('d', line(d))
-    // gameSel = d3.select('#graph').selectAll("div.game")
-    //     .data(games)
-    //     .enter()
-    //     .append('div.game')
-
-    // games.forEach(function(d, i) {
-    // console.log(i)
-
-    // t = d3.select(c).transition();
-
-
-
-    // gameSel = d3.selectAll("div.game").selectAll("path.score-line")
-    //      // .data(games)
-    //     // .select("path.score-line")
-    // .transition()
-    //     .duration(1000)
-    //     .attr("d", line(games))
-    // gameSel.each(function(d, i) {
-    //  // console.log(d)
-    //         c.svg.append('path.score-line')
-    //                     .transition()
-    //     .duration(1000)
-    //             .attr('d', line(d))
-
-    //     })
-
-
-
-    // Line_chart = d3.selectAll("div.game").selectAll("path.score-line");
-
-    // Line_chart
-    //  .data(games.forEach(function(d){
-    //      return d
-    //  }))
-
-    // console.log(Line_chart)
-
-
-
-    // Line_chart._parents.forEach(function(d,i){
-    //  d3.select('path.score-line').transition()
-    //     .duration(1000)
-    //     .attr("d", line(games[i]))
-    // })
-
-
-    // })
 
 }
 

@@ -10,7 +10,7 @@ library(jsonlite)
 j = 0
 gamelist =list()
 gameinfo = list()
-for(i in 20263:20337){
+for(i in 20337:20347){
   j=j+1
   sample.game <- NULL
   print(i)
@@ -28,22 +28,45 @@ for(i in 20263:20337){
   date <- c(paste0(sample.game$date[2],',',sample.game$date[3],',',sample.game$date[4]))
   scorehome <- sample.game$score[1]
   scoreaway <- sample.game$score[2]
-  home <- sample.game$teams[1]
-  away <- sample.game$teams[2]
+  away <- sample.game$teams[1]
+  home <- sample.game$teams[2]
   df<-data.frame(date,home,away,scorehome,scoreaway,gcode,nrow(outdata))
   rownames(df) <- NULL
   gameinfo[[j]] <- df
   
 }
+# load all existing games
+all <- readRDS(file="allGames.rds")
+allinfo <- readRDS(file="allGamesInfo.rds")
 
-saveRDS(gamelist,file='gamelist_20337.rds')
-saveRDS(gameinfo,file='gameinfo_20337.rds')
+#bind all months
+y <- rbind.fill(gameinfo)
+y1 <- rbind.fill(allinfo)
+y$gcode= as.numeric(y$gcode)
+y1$gcode= as.numeric(y1$gcode)
+y3<-dplyr::full_join(y, y1)
+y3<-dplyr::arrange(y3, gcode)
+#bind all months
+x <- rbind.fill(gamelist)
+x1 <- rbind.fill(all)
 
-gamelist1=readRDS(file='gamelist_20262.rds')
-gamelist2=readRDS(file='gamelist_20337.rds')
+x$gcode= as.numeric(x$gcode)
+x1$gcode= as.numeric(x1$gcode)
+x2=dplyr::full_join(x, x1)
 
-gameinfo1=readRDS(file='gameinfo_20262.rds')
-gameinfo2=readRDS(file='gameinfo_20337.rds')
+#remove duplicat games (rows)
+x2 = distinct(x2)
+y3 = distinct(y3)
+
+write.csv(x2,file='allgames.csv')
+write.csv(y3,file='allgamesinfo.csv')
+
+saveRDS(x2, file="allGames.rds")
+saveRDS(y3, file="allGamesInfo.rds")
+
+## should be it!
+
+
 #bind all months
 y <- rbind.fill(gameinfo1)
 y1 <- rbind.fill(gameinfo2)
@@ -60,7 +83,6 @@ x1$gcode= as.numeric(x1$gcode)
 
 x2=dplyr::full_join(x, x1)
 
-saveRDS(x, file="allGames.rds")
 
 inf <- rbind.fill(gameinfo)
 colnames(y3)[7] <-'shots'
