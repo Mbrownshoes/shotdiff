@@ -10,7 +10,7 @@ library(jsonlite)
 j = 0
 gamelist =list()
 gameinfo = list()
-for(i in 20337:20347){
+for(i in 20001:20347){
   j=j+1
   sample.game <- NULL
   print(i)
@@ -28,8 +28,8 @@ for(i in 20337:20347){
   date <- c(paste0(sample.game$date[2],',',sample.game$date[3],',',sample.game$date[4]))
   scorehome <- sample.game$score[1]
   scoreaway <- sample.game$score[2]
-  home <- sample.game$teams[1]
-  away <- sample.game$teams[2]
+  away <- sample.game$teams[1]
+  home <- sample.game$teams[2]
   df<-data.frame(date,home,away,scorehome,scoreaway,gcode,nrow(outdata))
   rownames(df) <- NULL
   gameinfo[[j]] <- df

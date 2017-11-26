@@ -138,7 +138,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         return formatTime(parseTime(d.date))
     })
     gameSel.append('div.team').text(function(d) {
-        return d.home == t ? '@' + d.away : d.home
+        return d.home != t ? '@' + d.home : d.away
     })
     gameSel.append('div.score').text(function(d) {
         return d.finalscore
@@ -389,7 +389,9 @@ function updateGraph(t) {
     })
 
     games.forEach(function(d, i) {
+        console.log(t)
         if(dat[i].home == t && dat[i].scorehome > dat[i].scoreaway){
+            console.log(dat[i])
             outcome = 'W'
         }else if (dat[i].away == t && dat[i].scoreaway > dat[i].scorehome){
             outcome = 'W'
@@ -437,7 +439,8 @@ function updateGraph(t) {
         return formatTime(parseTime(d.date))
     })
     gameSel.append('div.team').text(function(d) {
-        return d.home == t ? '@' + d.away : d.home
+        // console.log(d)
+        return d.home != t ? '@' + d.home : d.away
     })
     gameSel.append('div.score').text(function(d) {
         return d.finalscore
