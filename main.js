@@ -20,7 +20,7 @@ function hover(actualTime) {
         var sec = padTime(time % 1 * 60)
         d.xText.text(padTime(time) + ':' + sec)
             .attr('x', x(time))
-        console.log(-time)
+        // console.log(-time)
 
         var i = clamp(0, d3.bisectLeft(d.negMin, -time) - 1, d.length - 1)
         // console.log(i)
@@ -47,7 +47,7 @@ function padTime(d) {
 
 
 d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
-    console.log(res[1])
+    // console.log(res[1])
 
     teaminfo = res[1]
     allData = res[0]
@@ -96,9 +96,16 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
     //     changeneg = true;
     // }
     games.forEach(function(d, i) {
-        // console.log(d)
+        if(dat[i].home == t && dat[i].scorehome > dat[i].scoreaway){
+            outcome = 'W'
+        }else if (dat[i].away == t && dat[i].scoreaway > dat[i].scorehome){
+            outcome = 'W'
+        }else{
+            outcome = 'L'
+        }
+        // console.log(dat[i])
         d.date = dat[i].date.replace(/,/g, " ")
-        d.finalscore = dat[i].scorehome + "-" + dat[i].scoreaway
+        d.finalscore = outcome+ ' ' +dat[i].scorehome + "-" + dat[i].scoreaway
         d.home = dat[i].home
         d.away = dat[i].away
 
@@ -111,14 +118,14 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         })
 
     })
-    console.log(games)
+    // console.log(games)
 
     diffExtent = d3.extent(_.flatten(games.map(function(d) {
         return d.diffExtent;
     })))
-    console.log(diffExtent)
+    // console.log(diffExtent)
 
-    console.log(games)
+    // console.log(games)
     // gameSel = d3.select('#graph').appendMany(games, 'div.game')
     gameSel = d3.select('#graph').selectAll("div.game")
         .data(games)
@@ -137,13 +144,13 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         return d.finalscore
     })
 
-    console.log(gameSel)
+    // console.log(gameSel)
 
     gameSel.each(function(d, i) {
         var
             width = 195 //- margin.left - margin.right,
         height = 150 //- margin.top - margin.bottom;
-        console.log(height)
+        // console.log(height)
         // c = d3.conventions({
         //     parentSel: d3.select(this),
         //     height: 150,
@@ -327,7 +334,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
 })
 
 function clamp(a, b, c) {
-    console.log(Math.max(a, Math.min(b, c)))
+    // console.log(Math.max(a, Math.min(b, c)))
     return Math.max(a, Math.min(b, c))
 }
 
@@ -354,7 +361,7 @@ function updateGraph(t) {
             dat.push(d)
         }
     })
-    console.log(dat)
+    // console.log(dat)
 
 
     games = []
@@ -368,7 +375,7 @@ function updateGraph(t) {
             return d.gcode === i.gcode;
 
         });
-        console.log(filteredData[0])
+        // console.log(filteredData[0])
         if (filteredData[0]['ev.team'] == t && Math.sign(filteredData[0].shotdff) == -1 || filteredData[0]['ev.team'] != t && Math.sign(filteredData[0].shotdff) == 1) {
             filteredData.forEach(function(d) {
                 if (Math.sign(d.shotdff) == -1)
@@ -382,8 +389,15 @@ function updateGraph(t) {
     })
 
     games.forEach(function(d, i) {
+        if(dat[i].home == t && dat[i].scorehome > dat[i].scoreaway){
+            outcome = 'W'
+        }else if (dat[i].away == t && dat[i].scoreaway > dat[i].scorehome){
+            outcome = 'W'
+        }else{
+            outcome = 'L'
+        }
         d.date = dat[i].date.replace(/,/g, " ")
-        d.finalscore = dat[i].scorehome + "-" + dat[i].scoreaway
+        d.finalscore = outcome + ' ' +dat[i].scorehome + "-" + dat[i].scoreaway
         d.home = dat[i].home
         d.away = dat[i].away
         d.diffExtent = d3.extent(d, function(d) {
@@ -410,7 +424,7 @@ function updateGraph(t) {
     //  .duration(1000)
     //  .remove()
 
-    console.log(games)
+    // console.log(games)
 
 
     // = d3.select('#graph')
@@ -429,13 +443,13 @@ function updateGraph(t) {
         return d.finalscore
     })
 
-    console.log(gameSel)
+    // console.log(gameSel)
 
     gameSel.each(function(d, i) {
         var
             width = 195,
             height = 150;
-        console.log(height)
+        // console.log(height)
         // c = d3.conventions({
         //     parentSel: d3.select(this),
         //     height: 150,
@@ -570,7 +584,6 @@ function updateGraph(t) {
 
         svg
             .on('mousemove', function() {
-                console.log(height)
                 hover(x.invert(d3.mouse(this)[0]))
             })
             .on('mouseout', hoverHide)
@@ -601,7 +614,6 @@ $(document).ready(function() {
     $('.teams').on('change', function() {
         team_name = $('.teams').val();
         // document.getElementById("title").innerHTML = $('.teams').val();
-        console.log(team_name)
 
         // updateChords( "Arizona_matrix.json" );
         updateGraph(team_name);

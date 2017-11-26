@@ -107,7 +107,7 @@ path.domain{
 }
 .game .score{
 	position: absolute;
-	right: 13px;
+	right: 40px;
 	top: 6px;
 	color: #555;
 }

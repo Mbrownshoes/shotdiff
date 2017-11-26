@@ -28,8 +28,8 @@ for(i in 20337:20347){
   date <- c(paste0(sample.game$date[2],',',sample.game$date[3],',',sample.game$date[4]))
   scorehome <- sample.game$score[1]
   scoreaway <- sample.game$score[2]
-  away <- sample.game$teams[1]
-  home <- sample.game$teams[2]
+  home <- sample.game$teams[1]
+  away <- sample.game$teams[2]
   df<-data.frame(date,home,away,scorehome,scoreaway,gcode,nrow(outdata))
   rownames(df) <- NULL
   gameinfo[[j]] <- df
@@ -53,7 +53,7 @@ x1 <- rbind.fill(all)
 x$gcode= as.numeric(x$gcode)
 x1$gcode= as.numeric(x1$gcode)
 x2=dplyr::full_join(x, x1)
-
+x2<-dplyr::arrange(x2, gcode)
 #remove duplicat games (rows)
 x2 = distinct(x2)
 y3 = distinct(y3)
