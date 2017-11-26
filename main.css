@@ -14,15 +14,18 @@ body{
 	background: #F5F5F5;
 	width: 980px;
 	margin-left: -105px;
+	padding-left: 25px;
 }
      .for {
-        stroke: #fe9929;
+        stroke: #377eb8;
         fill: none;
+        /*fill-opacity: .4;*/
      }
 
      .against {
-        stroke: red;
+        stroke: #e31a1c;
         fill: none;
+        /*fill-opacity: .4;*/
      }
 svg{
 	overflow: visible;
