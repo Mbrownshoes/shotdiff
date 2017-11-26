@@ -180,6 +180,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         y.domain(diffExtent)
         y.domain([-20, 20])
 
+        period=['1st','2nd','3rd']
 
         // yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
         // xAxis.tickValues([60, 40, 20])
@@ -188,6 +189,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             .call(d3.axisLeft()
                 .scale(y)
                 .tickValues([-15, -10, -5, 0, 5, 10, 15])
+
             )
             .attr('class', 'y axis');
 
@@ -195,6 +197,9 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             .call(d3.axisBottom()
                 .scale(x)
                 .tickValues([60, 40, 20])
+                .tickFormat(function(d,i){
+                    return period[i]
+                })
             )
             .attr("transform", "translate(0," + height + ")")
             .attr('class', 'x line axis');
