@@ -16,7 +16,7 @@ body{
 	margin-left: -105px;
 }
      .for {
-        stroke: steelblue;
+        stroke: #fe9929;
         fill: none;
      }
 
@@ -34,7 +34,7 @@ svg{
 
 .score-line{
 	fill: none;
-	stroke: #fd8d3c;
+	stroke: #607D8B;
 	stroke-width: 2px;
 }
 

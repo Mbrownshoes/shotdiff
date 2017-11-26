@@ -180,7 +180,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         y.domain(diffExtent)
         y.domain([-20, 20])
 
-        period=['1st','2nd','3rd']
+        period=['p1','p2','p3']
 
         // yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
         // xAxis.tickValues([60, 40, 20])
@@ -196,7 +196,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         svg.append("g")
             .call(d3.axisBottom()
                 .scale(x)
-                .tickValues([60, 40, 20])
+                .tickValues([60, 40, 20,0])
                 .tickFormat(function(d,i){
                     return period[i]
                 })
@@ -258,11 +258,19 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             .attr("cy", function(d) {
                 return y(d['shotdff'])
             })
-            .attr('fill', 'none')
+            .attr('fill', function(d) {
+                // console.log(d['ev.team'])
+                if (d['ev.team'] == t) {
+                    return '#1a9850'
+                } else {
+                    return '#e31a1c'
+                }
+            })
+            .attr('fill-opacity',.4)
             .attr('stroke', function(d) {
                 // console.log(d['ev.team'])
                 if (d['ev.team'] == t) {
-                    return '#1f78b4'
+                    return '#1a9850'
                 } else {
                     return '#e31a1c'
                 }
