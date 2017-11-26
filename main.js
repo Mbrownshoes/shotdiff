@@ -274,11 +274,11 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
             //         return '#e31a1c'
             //     }
             // })
-            .attr('fill-opacity',.4)
+            // .attr('fill-opacity',.4)
             .attr('stroke', function(d) {
                 // console.log(d['ev.team'])
                 if (d['ev.team'] == t) {
-                    return '#377eb8'
+                    return 'black'
                 } else {
                     return '#e31a1c'
                 }
@@ -560,7 +560,7 @@ function updateGraph(t) {
             .attr('stroke', function(d) {
                 // console.log(d['ev.team'])
                 if (d['ev.team'] == t) {
-                    return '#377eb8'
+                    return 'black'
                 } else {
                     return '#e31a1c'
                 }
