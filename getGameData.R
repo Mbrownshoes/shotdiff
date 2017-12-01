@@ -10,7 +10,7 @@ library(jsonlite)
 j = 0
 gamelist =list()
 gameinfo = list()
-for(i in 20366:20390){
+for(i in 20380:20390){
   j=j+1
   sample.game <- NULL
   print(i)
