@@ -8,7 +8,7 @@ var teaminfo, x, y, height, width
 
 var height = 150
 
-
+var period=['p1','p2','p3']
 function hover(actualTime) {
     d3.selectAll('.hover').style('opacity', 1)
 
@@ -187,7 +187,7 @@ d3.loadData(["allgamesinfo.csv", "allgames.csv"], function(err, res) {
         y.domain(diffExtent)
         y.domain([-20, 20])
 
-        period=['p1','p2','p3']
+
 
         // yAxis.tickValues([-15, -10, -5, 0, 5, 10, 15])
         // xAxis.tickValues([60, 40, 20])
@@ -499,7 +499,10 @@ function updateGraph(t) {
         svg.append("g")
             .call(d3.axisBottom()
                 .scale(x)
-                .tickValues([60, 40, 20])
+                .tickValues([60, 40, 20,0])
+                .tickFormat(function(d,i){
+                    return period[i]
+                })
             )
             .attr("transform", "translate(0," + height + ")")
             .attr('class', 'x line axis');
